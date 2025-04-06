@@ -9,8 +9,16 @@
   <body>
     <div x-data="app" class="page">
       <div class="title-div">
-        <p>If the age of the Earth (<span x-text="earthAge / (10 ** 9)"></span> billion years) were scaled to the current year, it would be</p>
-        <h1 x-text="earthYear"></h1>
+        <p>
+          If the age of the Earth (<span x-text="earthAge / (10 ** 9)"></span>
+          billion years) were scaled to the current year, it would be
+        </p>
+        <h1
+          x-text="earthYearDisplay"
+          @click="yearClicked()"
+          title="Click to change units"
+          class="prevent-select"
+        ></h1>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
