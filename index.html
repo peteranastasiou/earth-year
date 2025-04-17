@@ -8,6 +8,7 @@
   </head>
   <body>
     <div x-data="app" class="page">
+      <!-- Title -->
       <div class="title-div">
         <p>
           If the age of the Earth (<span x-text="earthAge / (10 ** 9)"></span>
@@ -19,6 +20,48 @@
           title="Click to change units"
           class="prevent-select"
         ></h1>
+      </div>
+
+      <!-- Eras progress bars -->
+      <div class="eras-div">
+        <template x-for="(e, index) in eras">
+          <span
+            class="era-box"
+            :title="e.name"
+            :style="`
+              width: ${e.widthPercent * 0.9}%;
+              ${index > 0 ? 'border-left: none' : ''}
+            `"
+          >
+          <!-- TODO Resolve above hack by using gap instead of borders -->
+            <span
+              :style="`
+                background-color: ${index <= currentEraIndex ? '#91cd8d' : '#5b6e80'};
+                width: ${index == currentEraIndex ? currentEraPercentage : 100}%;
+              `"
+            >
+            </span>
+            <span class="progress-text" x-text="e.name.slice(0,2)">
+            </span>
+          </span>
+        </template>
+      </div>
+      <div class="eras-div" style="margin-top: 15px;">
+        <span
+          class="era-box"
+          style="width: 80%; border: 1px solid #493548;"
+        >
+          <span
+            :style="`
+              background-color: #91cd8d;
+              width: ${currentEraPercentage}%;
+              justify-content: center;
+            `"
+          >
+          </span>
+          <span class="progress-text" x-text="eras[currentEraIndex].name">
+          </span>
+        </span>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

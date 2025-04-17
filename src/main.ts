@@ -1,6 +1,7 @@
 import "./style.css";
 import Alpine from "alpinejs";
 import { DateTime, Interval } from "luxon";
+import { Era, eras } from "./eras";
 
 window.Alpine = Alpine;
 
@@ -22,6 +23,11 @@ interface AppData {
   // This is the instant before midnight at the end of the current year
   endOfYearDate: DateTime;
 
+  // Eras of the earth
+  eras: Era[];
+  currentEraIndex: number;
+  currentEraPercentage: number;
+
   // Allow any additional properties
   [key: string]: any;
 }
@@ -34,6 +40,9 @@ Alpine.data(
     units: Units.YEARS,
     earthAge: 4.543 * 1000_000_000,
     endOfYearDate: DateTime.now().endOf("year"),
+    eras,
+    currentEraIndex: 0,
+    currentEraPercentage: 0,
 
     init() {
       // Run every 20 ms
@@ -57,6 +66,16 @@ Alpine.data(
       // Portion of year left
       const portionLeft = daysLeft / now.daysInYear;
       this.earthYear = this.earthAge * portionLeft;
+
+      // Check if the era has changed
+      let era = this.eras[this.currentEraIndex];
+      if ( this.earthYear < era.endYear ) {
+        this.currentEraIndex ++;
+        era = this.eras[this.currentEraIndex];
+      }
+
+      // Check how far through the current era we are
+      this.currentEraPercentage = 100 * (era.startYear - this.earthYear) / (era.startYear - era.endYear)
 
       // Format as earth year
       const formatYear = (unit: number, suffix: string) => {

@@ -23,6 +23,34 @@
   align-items: center;
 }
 
+.eras-div {
+  display: flex;
+  justify-content: center;
+}
+
+/* todo use grid/gap instead of border to avoid double up */
+.era-box {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+  color: white;
+  font-weight: bold;
+  height: 25px;
+  border: 1px solid #493548;
+  background-color: #5b6e80;
+}
+
+.progress-text {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  text-align: center;
+  line-height: 25px;
+  color: white;
+}
+
 p {
   margin-bottom: 0;
 }
