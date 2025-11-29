@@ -45,8 +45,8 @@ Alpine.data(
     currentEraPercentage: 0,
 
     init() {
-      // Run every 20 ms
-      setInterval(() => this.tick(), 20);
+      // Run the cycle
+      setInterval(() => this.tick(), 100);
     },
 
     yearClicked() {
