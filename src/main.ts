@@ -11,6 +11,8 @@ enum Units {
   MA,
 }
 
+const DATE_FORMAT = DateTime.DATETIME_SHORT_WITH_SECONDS;
+
 interface AppData {
   // Current scaled year of the earth
   earthYear: number;
@@ -20,11 +22,11 @@ interface AppData {
   // Age of Earth in years
   earthAge: number;
 
-  // This is the instant before midnight at the end of the current year
-  endOfYearDate: DateTime;
-
   // Eras of the earth
   eras: Era[];
+
+  // The current local time and era of the earth year
+  currentTime: string;
   currentEra?: Era;
   currentEraIndex: number;
   currentEraPercentage: number;
@@ -33,8 +35,13 @@ interface AppData {
   startLocal: string;
   endLocal: string;
 
-  // Allow user to bump days left and right to preview different eras
-  previewDays: number;
+  // Allow user to bump days left and right to offset different eras
+  offsetDays: number;
+
+  // Keep track of how often we run
+  tickCount: number;
+  tickPeriod: number;
+  earthYearsPerTick: number;
 
   // Allow any additional properties
   [key: string]: any;
@@ -47,18 +54,31 @@ Alpine.data(
     earthYearDisplay: "",
     units: Units.YEARS,
     earthAge: 4.543 * 1000_000_000,
-    endOfYearDate: DateTime.now().endOf("year"),
     eras,
+    currentTime: "",
     currentEra: undefined,
     currentEraIndex: 0,
     currentEraPercentage: 0,
-    previewDays: 0,
+    offsetDays: 0,
     startLocal: "",
     endLocal: "",
+    tickCount: 0,
+    tickPeriod: 100, // ms
+    earthYearsPerTick: 0,
+
+    lastYear: 0,
 
     init() {
+      // Calculate how many years to increment every cycle:
+      const earthYearsPerSecond =
+        this.earthAge / DateTime.now().daysInYear / 24 / 60 / 60;
+      const ticksPerSecond = 1000 / this.tickPeriod;
+      this.earthYearsPerTick = earthYearsPerSecond / ticksPerSecond;
+      console.log(this.earthYearsPerTick);
+
       // Run the cycle
-      setInterval(() => this.tick(), 100);  // todo wait until current loop is finished first, don't bank up
+      setInterval(() => this.tick(), this.tickPeriod);
+      this.tick(); // the first render
     },
 
     yearClicked() {
@@ -66,53 +86,25 @@ Alpine.data(
       this.units = this.units === Units.MA ? Units.YEARS : this.units + 1;
     },
 
-    resetPreviewDays() {
-      this.previewDays = 0;
+    resetOffsetDays() {
+      this.offsetDays = 0;
+
+      // force a re-calculation now:
+      this.tickCount = 0;
+      this.tick();
     },
 
-    // Format as earth year
-    formatYear(unit: number, suffix: string) {
-      this.earthYearDisplay =
-        Math.round(this.earthYear / unit).toLocaleString() + suffix;
+    incrementOffsetDays(n: number) {
+      this.offsetDays += n;
+
+      // force a re-calculation now:
+      this.tickCount = 0;
+      this.tick();
     },
 
-    tick() {
-      const now = DateTime.now().plus(Duration.fromObject({days: this.previewDays}));
-
-      // Days left in the year
-      const daysLeft: number = Interval.fromDateTimes(
-        now,
-        this.endOfYearDate,
-      ).length("days");
-
-      // Portion of year left
-      const portionLeft = daysLeft / now.daysInYear;
-      this.earthYear = this.earthAge * portionLeft;
-
-      // Check if the era has changed
-      let era = this.eras[this.currentEraIndex];
-      while ( this.earthYear < era.endYear && this.currentEraIndex < this.eras.length-1 ) {
-        this.currentEraIndex ++;
-        era = this.eras[this.currentEraIndex];
-      }
-      while ( this.earthYear > era.startYear && this.currentEraIndex > 0 ) {
-        this.currentEraIndex --;
-        era = this.eras[this.currentEraIndex];
-      }
-      this.currentEra = era;
-
-      // Calculate time of start and end of current era
-      const earthYearToLocalTime = (earthYear: number) => {
-        const daysRem = earthYear * now.daysInYear / this.earthAge;
-        const msRem = daysRem * 86400000;
-        return this.endOfYearDate.minus(Duration.fromMillis(msRem));
-      }
-      this.startLocal = earthYearToLocalTime(era.startYear).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
-      this.endLocal = earthYearToLocalTime(era.endYear).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
-
-      // Check how far through the current era we are
-      this.currentEraPercentage = 100 * (era.startYear - this.earthYear) / (era.startYear - era.endYear);
-
+    renderYear() {
+      console.log(this.lastYear - this.earthYear);
+      this.lastYear = this.earthYear;
       switch (this.units) {
         case Units.YEARS:
           this.formatYear(1, " yrs ago");
@@ -126,6 +118,74 @@ Alpine.data(
           this.formatYear(1000_000, " Ma");
           break;
       }
+    },
+
+    // Format as earth year
+    formatYear(unit: number, suffix: string) {
+      this.earthYearDisplay =
+        Math.round(this.earthYear / unit).toLocaleString() + suffix;
+    },
+
+    tick() {
+      // Perform just a quick calculation most times, do the full render less frequently
+      if (this.tickCount++ % 20 != 0) {
+        // Instead of going for the full hassle of recalculating everything, just
+        // decrement the known number of earth years most ticks
+        // This is an optimisation
+        this.earthYear = Math.max(0, this.earthYear - this.earthYearsPerTick);
+        this.renderYear();
+        return;
+      }
+
+      const now = DateTime.now().plus(
+        Duration.fromObject({ days: this.offsetDays }),
+      );
+      this.currentTime = now.toLocaleString(DATE_FORMAT);
+
+      // This is the instant before midnight at the end of the current year
+      const endOfYearDate = now.endOf("year");
+
+      // Days left in the year
+      const daysLeft: number = Interval.fromDateTimes(
+        now,
+        endOfYearDate,
+      ).length("days");
+
+      // Portion of year left
+      const portionLeft = daysLeft / now.daysInYear;
+      this.earthYear = this.earthAge * portionLeft;
+
+      // Check if the era has changed
+      let era = this.eras[this.currentEraIndex];
+      while (
+        this.earthYear < era.endYear &&
+        this.currentEraIndex < this.eras.length - 1
+      ) {
+        this.currentEraIndex++;
+        era = this.eras[this.currentEraIndex];
+      }
+      while (this.earthYear > era.startYear && this.currentEraIndex > 0) {
+        this.currentEraIndex--;
+        era = this.eras[this.currentEraIndex];
+      }
+      this.currentEra = era;
+
+      // Calculate time of start and end of current era
+      const earthYearToLocalTime = (earthYear: number) => {
+        const daysRemaining = (earthYear * now.daysInYear) / this.earthAge;
+        const msRemaining = daysRemaining * 86400000;
+        const date = endOfYearDate.minus(Duration.fromMillis(msRemaining));
+        return date.toLocaleString(DATE_FORMAT);
+      };
+      this.startLocal = earthYearToLocalTime(era.startYear);
+      this.endLocal = earthYearToLocalTime(era.endYear);
+
+      // Check how far through the current era we are
+      this.currentEraPercentage =
+        (100 * (era.startYear - this.earthYear)) /
+        (era.startYear - era.endYear);
+
+      this.renderYear();
     },
   }),
 );
