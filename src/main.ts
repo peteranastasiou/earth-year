@@ -1,7 +1,7 @@
 import "./style.css";
 import Alpine from "alpinejs";
 import { DateTime, Duration, Interval } from "luxon";
-import { Era, eras } from "./eras";
+import { Era, eras } from "./data/eras";
 
 window.Alpine = Alpine;
 
