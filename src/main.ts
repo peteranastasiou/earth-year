@@ -2,6 +2,8 @@ import "./style.css";
 import Alpine from "alpinejs";
 import { DateTime, Duration, Interval } from "luxon";
 import { Era, eras } from "./data/eras";
+import { events, PrehistoricEvent } from "./data/events";
+import { filter, from, take, takeLast } from "rxjs";
 
 window.Alpine = Alpine;
 
@@ -43,6 +45,10 @@ interface AppData {
   tickPeriod: number;
   earthYearsPerTick: number;
 
+  // Event tracking
+  pastEvents: PrehistoricEvent[];
+  upcomingEvents: PrehistoricEvent[];
+
   // Allow any additional properties
   [key: string]: any;
 }
@@ -65,8 +71,8 @@ Alpine.data(
     tickCount: 0,
     tickPeriod: 100, // ms
     earthYearsPerTick: 0,
-
-    lastYear: 0,
+    pastEvents: [],
+    upcomingEvents: [],
 
     init() {
       // Calculate how many years to increment every cycle:
@@ -74,7 +80,6 @@ Alpine.data(
         this.earthAge / DateTime.now().daysInYear / 24 / 60 / 60;
       const ticksPerSecond = 1000 / this.tickPeriod;
       this.earthYearsPerTick = earthYearsPerSecond / ticksPerSecond;
-      console.log(this.earthYearsPerTick);
 
       // Run the cycle
       setInterval(() => this.tick(), this.tickPeriod);
@@ -103,8 +108,6 @@ Alpine.data(
     },
 
     renderYear() {
-      console.log(this.lastYear - this.earthYear);
-      this.lastYear = this.earthYear;
       switch (this.units) {
         case Units.YEARS:
           this.formatYear(1, " yrs ago");
@@ -184,6 +187,22 @@ Alpine.data(
       this.currentEraPercentage =
         (100 * (era.startYear - this.earthYear)) /
         (era.startYear - era.endYear);
+
+      // Get past events
+      const pastEvents: PrehistoricEvent[] = [];
+      from(events).pipe(
+        filter((e) => e.year >= this.earthYear),
+        takeLast(2)
+      ).forEach((e) => {pastEvents.push(e)});
+      this.pastEvents = pastEvents;
+
+      // Get upcoming events
+      const upcomingEvents: PrehistoricEvent[] = [];
+      from(events).pipe(
+        filter((e) => e.year < this.earthYear),
+        take(3)
+      ).forEach((e) => {upcomingEvents.push(e)});
+      this.upcomingEvents = upcomingEvents;
 
       this.renderYear();
     },
