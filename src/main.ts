@@ -25,8 +25,13 @@ interface AppData {
 
   // Eras of the earth
   eras: Era[];
+  currentEra?: Era;
   currentEraIndex: number;
   currentEraPercentage: number;
+
+  // Start and end of current era in local time
+  startLocal: string;
+  endLocal: string;
 
   // Allow any additional properties
   [key: string]: any;
@@ -41,6 +46,7 @@ Alpine.data(
     earthAge: 4.543 * 1000_000_000,
     endOfYearDate: DateTime.now().endOf("year"),
     eras,
+    currentEra: undefined,
     currentEraIndex: 0,
     currentEraPercentage: 0,
     startLocal: "",
@@ -81,6 +87,7 @@ Alpine.data(
         this.currentEraIndex ++;
         era = this.eras[this.currentEraIndex];
       }
+      this.currentEra = era;
 
       // Calculate time of start and end of current era
       const earthYearToLocalTime = (earthYear: number) => {
@@ -93,7 +100,7 @@ Alpine.data(
 
       // Check how far through the current era we are
       this.currentEraPercentage = 100 * (era.startYear - this.earthYear) / (era.startYear - era.endYear);
-      
+
       switch (this.units) {
         case Units.YEARS:
           this.formatYear(1, " yrs ago");

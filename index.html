@@ -43,10 +43,11 @@
         </template>
       </div>
   
-      <p class="title-div" style="margin: 35px 0px 5px 0px;">The Current Era is</p>
-
-      <!-- Current era progress bar -->
+      <!-- Current era section of the page -->
       <div class="current-era-section">
+        <p class="title-div" style="margin: 35px 0px 5px 0px;">The Current Era is</p>
+
+        <!-- Current era progress bar -->
         <div class="current-era-div">
           <span
             class="era-box"
@@ -54,7 +55,7 @@
           >
             <span
               :style="`
-                background-color: ${eras[currentEraIndex].color};
+                background-color: ${currentEra?.color};
                 width: ${currentEraPercentage}%;
                 justify-content: center;
               `"
@@ -65,9 +66,20 @@
           </span>
         </div>
 
+        <!-- Current era start and end dates -->
         <div class="current-era-endpoints">
-          <span x-text="startLocal"></span>
-          <span x-text="endLocal"></span>
+          <span x-text="startLocal" style="text-align: left;"></span>
+          <span x-text="endLocal" style="text-align: right;"></span>
+        </div>
+        <div class="current-era-endpoints">
+          <span style="text-align: left;">
+            <span x-text="currentEra?.startYear / 1000000" ></span>
+            Mya
+          </span>
+          <span style="text-align: left;">
+            <span x-text="currentEra?.endYear / 1000000" ></span>
+            Mya
+          </span>
         </div>
       </div>
     </div>
