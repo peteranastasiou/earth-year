@@ -33,6 +33,9 @@ interface AppData {
   startLocal: string;
   endLocal: string;
 
+  // Allow user to bump days left and right to preview different eras
+  previewDays: number;
+
   // Allow any additional properties
   [key: string]: any;
 }
@@ -49,6 +52,7 @@ Alpine.data(
     currentEra: undefined,
     currentEraIndex: 0,
     currentEraPercentage: 0,
+    previewDays: 0,
     startLocal: "",
     endLocal: "",
 
@@ -62,6 +66,10 @@ Alpine.data(
       this.units = this.units === Units.MA ? Units.YEARS : this.units + 1;
     },
 
+    resetPreviewDays() {
+      this.previewDays = 0;
+    },
+
     // Format as earth year
     formatYear(unit: number, suffix: string) {
       this.earthYearDisplay =
@@ -69,7 +77,7 @@ Alpine.data(
     },
 
     tick() {
-      const now = DateTime.now();
+      const now = DateTime.now().plus(Duration.fromObject({days: this.previewDays}));
 
       // Days left in the year
       const daysLeft: number = Interval.fromDateTimes(
@@ -83,8 +91,12 @@ Alpine.data(
 
       // Check if the era has changed
       let era = this.eras[this.currentEraIndex];
-      while ( this.earthYear < era.endYear ) {
+      while ( this.earthYear < era.endYear && this.currentEraIndex < this.eras.length-1 ) {
         this.currentEraIndex ++;
+        era = this.eras[this.currentEraIndex];
+      }
+      while ( this.earthYear > era.startYear && this.currentEraIndex > 0 ) {
+        this.currentEraIndex --;
         era = this.eras[this.currentEraIndex];
       }
       this.currentEra = era;

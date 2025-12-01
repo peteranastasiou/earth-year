@@ -82,6 +82,14 @@
           </span>
         </div>
       </div>
+
+      <!-- Preview days left/right -->
+      <div style="display: flex; justify-content: center; margin: 10px">
+        <button x-on:click="resetPreviewDays()" style="margin: 5px">Today</button>
+        <span style="margin-top: 4px">±</span>
+        <input type="number" x-model.number="previewDays" style="width: 50px">
+      </div>
+
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
