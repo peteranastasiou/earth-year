@@ -1,6 +1,6 @@
 import "./style.css";
 import Alpine from "alpinejs";
-import { DateTime, Interval } from "luxon";
+import { DateTime, Duration, Interval } from "luxon";
 import { Era, eras } from "./eras";
 
 window.Alpine = Alpine;
@@ -43,15 +43,23 @@ Alpine.data(
     eras,
     currentEraIndex: 0,
     currentEraPercentage: 0,
+    startLocal: "",
+    endLocal: "",
 
     init() {
       // Run the cycle
-      setInterval(() => this.tick(), 100);
+      setInterval(() => this.tick(), 100);  // todo wait until current loop is finished first, don't bank up
     },
 
     yearClicked() {
       // Cycle through units
       this.units = this.units === Units.MA ? Units.YEARS : this.units + 1;
+    },
+
+    // Format as earth year
+    formatYear(unit: number, suffix: string) {
+      this.earthYearDisplay =
+        Math.round(this.earthYear / unit).toLocaleString() + suffix;
     },
 
     tick() {
@@ -69,31 +77,34 @@ Alpine.data(
 
       // Check if the era has changed
       let era = this.eras[this.currentEraIndex];
-      if ( this.earthYear < era.endYear ) {
+      while ( this.earthYear < era.endYear ) {
         this.currentEraIndex ++;
         era = this.eras[this.currentEraIndex];
       }
 
+      // Calculate time of start and end of current era
+      const earthYearToLocalTime = (earthYear: number) => {
+        const daysRem = earthYear * now.daysInYear / this.earthAge;
+        const msRem = daysRem * 86400000;
+        return this.endOfYearDate.minus(Duration.fromMillis(msRem));
+      }
+      this.startLocal = earthYearToLocalTime(era.startYear).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
+      this.endLocal = earthYearToLocalTime(era.endYear).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
+
       // Check how far through the current era we are
-      this.currentEraPercentage = 100 * (era.startYear - this.earthYear) / (era.startYear - era.endYear)
-
-      // Format as earth year
-      const formatYear = (unit: number, suffix: string) => {
-        this.earthYearDisplay =
-          Math.round(this.earthYear / unit).toLocaleString() + suffix;
-      };
-
+      this.currentEraPercentage = 100 * (era.startYear - this.earthYear) / (era.startYear - era.endYear);
+      
       switch (this.units) {
         case Units.YEARS:
-          formatYear(1, " years ago");
+          this.formatYear(1, " yrs ago");
           break;
 
         case Units.KA:
-          formatYear(1000, " ka");
+          this.formatYear(1000, " ka");
           break;
 
         case Units.MA:
-          formatYear(1000_000, " Ma");
+          this.formatYear(1000_000, " Ma");
           break;
       }
     },

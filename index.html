@@ -28,40 +28,47 @@
           <span
             class="era-box"
             :title="e.name"
-            :style="`
-              width: ${e.widthPercent * 0.9}%;
-              ${index > 0 ? 'border-left: none' : ''}
-            `"
+            :style="`width: ${8*e.percent}%;`"
           >
-          <!-- TODO Resolve above hack by using gap instead of borders -->
             <span
               :style="`
-                background-color: ${index <= currentEraIndex ? '#91cd8d' : '#5b6e80'};
-                width: ${index == currentEraIndex ? currentEraPercentage : 100}%;
+                background-color: ${e.color};
+                width: ${index < currentEraIndex ? 100 : (index > currentEraIndex ? 0 : currentEraPercentage)}%;
               `"
             >
             </span>
-            <span class="progress-text" x-text="e.name.slice(0,2)">
+            <span class="progress-text" x-text="e.name">
             </span>
           </span>
         </template>
       </div>
-      <div class="eras-div" style="margin-top: 15px;">
-        <span
-          class="era-box"
-          style="width: 80%; border: 1px solid #493548;"
-        >
+  
+      <p class="title-div" style="margin: 35px 0px 5px 0px;">The Current Era is</p>
+
+      <!-- Current era progress bar -->
+      <div class="current-era-section">
+        <div class="current-era-div">
           <span
-            :style="`
-              background-color: #91cd8d;
-              width: ${currentEraPercentage}%;
-              justify-content: center;
-            `"
+            class="era-box"
+            style="width: 100%; border: 1px solid #493548;"
           >
+            <span
+              :style="`
+                background-color: ${eras[currentEraIndex].color};
+                width: ${currentEraPercentage}%;
+                justify-content: center;
+              `"
+            >
+            </span>
+            <span class="progress-text" x-text="eras[currentEraIndex].name">
+            </span>
           </span>
-          <span class="progress-text" x-text="eras[currentEraIndex].name">
-          </span>
-        </span>
+        </div>
+
+        <div class="current-era-endpoints">
+          <span x-text="startLocal"></span>
+          <span x-text="endLocal"></span>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
