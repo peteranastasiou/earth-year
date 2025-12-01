@@ -83,7 +83,7 @@
         </div>
       </div>
 
-      <!-- Offset days left/right -->
+      <!-- Current time -->
       <div
         style="
           display: flex;
@@ -96,6 +96,7 @@
         <div style="margin-bottom: 10px">
           <span x-text="currentTime"></span>
         </div>
+        <!-- Offset days left/right -->
         <div>
           <span style="margin: 5px 5px 0px 0px">Offset by</span>
           <input
@@ -119,6 +120,31 @@
           </button>
         </div>
       </div>
+
+      <div>
+        <h4>Upcoming Events</h4>
+        <table width="100%">
+          <template x-for="(e, index) in upcomingEvents">
+            <tr>
+              <td x-text="e.name"></td>
+              <td x-text="e.year < 1000000 ? e.year : e.year / 1000000 + ' Mya'"></td>
+            </tr>
+          </template>
+        </table>
+
+        <h4>Past Events</h4>
+        <table width="100%">
+          <template x-for="(e, index) in pastEvents">
+            <tr>
+              <td x-text="e.name"></td>
+              <td x-text="e.year < 1000000 ? e.year : e.year / 1000000 + ' Mya'"></td>
+            </tr>
+          </template>
+        </table>
+      </div>
+
+
+      
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
