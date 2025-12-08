@@ -5,8 +5,8 @@ const DATE_FORMAT = DateTime.DATETIME_SHORT_WITH_SECONDS;
 export class TimeCalculator {
   public static EARTH_AGE: number = 4.543 * 1000_000_000;
 
-  private now: DateTime;
-  private endOfYearDate: DateTime;
+  public now: DateTime;
+  public endOfYearDate: DateTime;
 
   constructor() {
     this.now = DateTime.now();
@@ -25,7 +25,7 @@ export class TimeCalculator {
     return this.now.toLocaleString(DATE_FORMAT);
   }
 
-  public currentTimeToEarthYear() {
+  public currentTimeToEarthYear(): number {
     // Days left in the year
     const daysLeft: number = Interval.fromDateTimes(
       this.now,
@@ -37,11 +37,15 @@ export class TimeCalculator {
     return TimeCalculator.EARTH_AGE * portionLeft;
   }
 
-  public earthYearToLocalTime(earthYear: number) {
+  public earthYearToLocalTime(earthYear: number): DateTime {
     const daysRemaining =
       (earthYear * this.now.daysInYear) / TimeCalculator.EARTH_AGE;
     const msRemaining = daysRemaining * 86400000;
     const date = this.endOfYearDate.minus(Duration.fromMillis(msRemaining));
-    return date.toLocaleString(DATE_FORMAT);
+    return date;
+  }
+
+  public earthYearToLocalTimeString(earthYear: number): string {
+    return this.earthYearToLocalTime(earthYear).toLocaleString(DATE_FORMAT);
   }
 }

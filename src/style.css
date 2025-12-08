@@ -77,6 +77,10 @@
   width: 80%;
 }
 
+.no-wrap {
+  text-wrap: nowrap;
+}
+
 p {
   margin-bottom: 0;
 }

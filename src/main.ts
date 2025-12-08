@@ -165,44 +165,53 @@ Alpine.data(
       this.currentEra = era;
 
       // Calculate time of start and end of current era
-      this.startLocal = tc.earthYearToLocalTime(era.startYear);
-      this.endLocal = tc.earthYearToLocalTime(era.endYear);
+      this.startLocal = tc.earthYearToLocalTimeString(era.startYear);
+      this.endLocal = tc.earthYearToLocalTimeString(era.endYear);
 
       // Check how far through the current era we are
       this.currentEraPercentage =
         (100 * (era.startYear - this.earthYear)) /
         (era.startYear - era.endYear);
 
-      const mapEvents = (e: PrehistoricEvent) => ({
+      // const mapEvents = (e: PrehistoricEvent) => ({
+      //   ...e,
+      //   localDate: tc.earthYearToLocalTimeString(e.year),
+      // });
+      // // Get past events
+      // const pastEvents: PrehistoricEvent[] = [];
+      // from(events)
+      //   .pipe(
+      //     filter((e) => e.year >= this.earthYear),
+      //     takeLast(2),
+      //     map(mapEvents),
+      //   )
+      //   .forEach((e) => {
+      //     pastEvents.push(e);
+      //   });
+      // this.pastEvents = pastEvents;
+
+      // // Get upcoming events
+      // const upcomingEvents: PrehistoricEvent[] = [];
+      // from(events)
+      //   .pipe(
+      //     filter((e) => e.year < this.earthYear),
+      //     take(3),
+      //     map(mapEvents),
+      //   )
+      //   .forEach((e) => {
+      //     upcomingEvents.push(e);
+      //   });
+      // this.upcomingEvents = upcomingEvents;
+
+      // Events today
+      this.upcomingEvents = events.filter((e) => {
+        // Filter if it is today
+        const date = tc.earthYearToLocalTime(e.year);
+        return date.ordinal == tc.now.ordinal;
+      }).map((e => ({
         ...e,
-        localDate: tc.earthYearToLocalTime(e.year),
-      });
-
-      // Get past events
-      const pastEvents: PrehistoricEvent[] = [];
-      from(events)
-        .pipe(
-          filter((e) => e.year >= this.earthYear),
-          takeLast(2),
-          map(mapEvents),
-        )
-        .forEach((e) => {
-          pastEvents.push(e);
-        });
-      this.pastEvents = pastEvents;
-
-      // Get upcoming events
-      const upcomingEvents: PrehistoricEvent[] = [];
-      from(events)
-        .pipe(
-          filter((e) => e.year < this.earthYear),
-          take(3),
-          map(mapEvents),
-        )
-        .forEach((e) => {
-          upcomingEvents.push(e);
-        });
-      this.upcomingEvents = upcomingEvents;
+        localTime: tc.earthYearToLocalTime(e.year).toLocaleString(DateTime.TIME_WITH_SECONDS)
+      })));
 
       this.renderYear();
     },
