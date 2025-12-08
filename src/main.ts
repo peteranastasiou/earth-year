@@ -83,6 +83,8 @@ Alpine.data(
       const ticksPerSecond = 1000 / this.tickPeriod;
       this.earthYearsPerTick = earthYearsPerSecond / ticksPerSecond;
 
+      console.log({earthYearsPerSecond});
+
       // Run the cycle
       setInterval(() => this.tick(), this.tickPeriod);
       this.tick(); // the first render

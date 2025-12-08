@@ -130,6 +130,8 @@ export const events: PrehistoricEvent[] = [
   // { name: "Tyrannosaurus rex exists", year: 68 * MA },
   // { name: "Cretaceous-Paleogene extinction event", year: 66 * MA },
 
+  {name: "Early Homo sapiens appear in Africa", year: 300_000},
+  {name: "End of the Last Ice Age", year: 12_000},
   {
     name: "The Great Pyramid of Giza is constructed",
     year: 2560 + CURRENT_YEAR,
@@ -138,4 +140,6 @@ export const events: PrehistoricEvent[] = [
   { name: "First recorded Olympic Games", year: 776 + CURRENT_YEAR },
   { name: "Paper is invented in the Han dynasty", year: 200 + CURRENT_YEAR },
   { name: "Jesus is born", year: 4 + CURRENT_YEAR },
+  { name: "1880 (one second ago)", year: CURRENT_YEAR - 1850 },
+  { name: "Present day", year: 0 },
 ];
