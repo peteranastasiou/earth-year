@@ -92,7 +92,9 @@
           margin: 10px;
         "
       >
-        <div x-text="offsetDays === 0 ? 'Real local time:' : 'Offset local time:'"></div>
+        <div
+          x-text="offsetDays === 0 ? 'Real local time:' : 'Offset local time:'"
+        ></div>
         <div style="margin-bottom: 10px">
           <span x-text="currentTime"></span>
         </div>
@@ -122,29 +124,33 @@
       </div>
 
       <div>
-        <h4>Upcoming Events</h4>
         <table width="100%">
-          <template x-for="(e, index) in upcomingEvents">
-            <tr>
-              <td x-text="e.name"></td>
-              <td x-text="e.year < 1000000 ? e.year : e.year / 1000000 + ' Mya'"></td>
-            </tr>
-          </template>
-        </table>
-
-        <h4>Past Events</h4>
-        <table width="100%">
+          <tr>
+            <th colspan="3">Past Events</th>
+          </tr>
           <template x-for="(e, index) in pastEvents">
             <tr>
               <td x-text="e.name"></td>
-              <td x-text="e.year < 1000000 ? e.year : e.year / 1000000 + ' Mya'"></td>
+              <td
+                x-text="e.year < 1000000 ? e.year : e.year / 1000000 + ' Mya'"
+              ></td>
+              <td x-text="e.localDate"></td>
+            </tr>
+          </template>
+          <tr>
+            <th colspan="3">Upcoming Events</th>
+          </tr>
+          <template x-for="(e, index) in upcomingEvents">
+            <tr>
+              <td x-text="e.name"></td>
+              <td
+                x-text="e.year < 1000000 ? e.year : e.year / 1000000 + ' Mya'"
+              ></td>
+              <td x-text="e.localDate"></td>
             </tr>
           </template>
         </table>
       </div>
-
-
-      
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

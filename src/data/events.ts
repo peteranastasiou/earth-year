@@ -8,6 +8,7 @@ export interface PrehistoricEvent {
   name: string;
   year: number;
   endYear?: number;
+  localDate?: string;
   link?: string;
 }
 

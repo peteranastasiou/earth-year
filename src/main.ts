@@ -1,9 +1,10 @@
 import "./style.css";
 import Alpine from "alpinejs";
-import { DateTime, Duration, Interval } from "luxon";
+import { DateTime } from "luxon";
 import { Era, eras } from "./data/eras";
 import { events, PrehistoricEvent } from "./data/events";
-import { filter, from, take, takeLast } from "rxjs";
+import { filter, from, map, take, takeLast } from "rxjs";
+import { TimeCalculator } from "./time-calculator";
 
 window.Alpine = Alpine;
 
@@ -13,13 +14,13 @@ enum Units {
   MA,
 }
 
-const DATE_FORMAT = DateTime.DATETIME_SHORT_WITH_SECONDS;
-
 interface AppData {
   // Current scaled year of the earth
   earthYear: number;
   earthYearDisplay: string;
   units: Units;
+
+  timeCalculator: TimeCalculator;
 
   // Age of Earth in years
   earthAge: number;
@@ -56,10 +57,11 @@ interface AppData {
 Alpine.data(
   "app",
   (): AppData => ({
+    timeCalculator: new TimeCalculator(),
     earthYear: 0,
     earthYearDisplay: "",
     units: Units.YEARS,
-    earthAge: 4.543 * 1000_000_000,
+    earthAge: TimeCalculator.EARTH_AGE,
     eras,
     currentTime: "",
     currentEra: undefined,
@@ -140,23 +142,12 @@ Alpine.data(
         return;
       }
 
-      const now = DateTime.now().plus(
-        Duration.fromObject({ days: this.offsetDays }),
-      );
-      this.currentTime = now.toLocaleString(DATE_FORMAT);
+      // Short hand for time calculator
+      const tc = this.timeCalculator;
 
-      // This is the instant before midnight at the end of the current year
-      const endOfYearDate = now.endOf("year");
-
-      // Days left in the year
-      const daysLeft: number = Interval.fromDateTimes(
-        now,
-        endOfYearDate,
-      ).length("days");
-
-      // Portion of year left
-      const portionLeft = daysLeft / now.daysInYear;
-      this.earthYear = this.earthAge * portionLeft;
+      tc.update(this.offsetDays);
+      this.currentTime = tc.getCurrentTimeString();
+      this.earthYear = tc.currentTimeToEarthYear();
 
       // Check if the era has changed
       let era = this.eras[this.currentEraIndex];
@@ -174,34 +165,43 @@ Alpine.data(
       this.currentEra = era;
 
       // Calculate time of start and end of current era
-      const earthYearToLocalTime = (earthYear: number) => {
-        const daysRemaining = (earthYear * now.daysInYear) / this.earthAge;
-        const msRemaining = daysRemaining * 86400000;
-        const date = endOfYearDate.minus(Duration.fromMillis(msRemaining));
-        return date.toLocaleString(DATE_FORMAT);
-      };
-      this.startLocal = earthYearToLocalTime(era.startYear);
-      this.endLocal = earthYearToLocalTime(era.endYear);
+      this.startLocal = tc.earthYearToLocalTime(era.startYear);
+      this.endLocal = tc.earthYearToLocalTime(era.endYear);
 
       // Check how far through the current era we are
       this.currentEraPercentage =
         (100 * (era.startYear - this.earthYear)) /
         (era.startYear - era.endYear);
 
+      const mapEvents = (e: PrehistoricEvent) => ({
+        ...e,
+        localDate: tc.earthYearToLocalTime(e.year),
+      });
+
       // Get past events
       const pastEvents: PrehistoricEvent[] = [];
-      from(events).pipe(
-        filter((e) => e.year >= this.earthYear),
-        takeLast(2)
-      ).forEach((e) => {pastEvents.push(e)});
+      from(events)
+        .pipe(
+          filter((e) => e.year >= this.earthYear),
+          takeLast(2),
+          map(mapEvents),
+        )
+        .forEach((e) => {
+          pastEvents.push(e);
+        });
       this.pastEvents = pastEvents;
 
       // Get upcoming events
       const upcomingEvents: PrehistoricEvent[] = [];
-      from(events).pipe(
-        filter((e) => e.year < this.earthYear),
-        take(3)
-      ).forEach((e) => {upcomingEvents.push(e)});
+      from(events)
+        .pipe(
+          filter((e) => e.year < this.earthYear),
+          take(3),
+          map(mapEvents),
+        )
+        .forEach((e) => {
+          upcomingEvents.push(e);
+        });
       this.upcomingEvents = upcomingEvents;
 
       this.renderYear();
