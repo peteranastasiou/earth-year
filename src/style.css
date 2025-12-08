@@ -33,12 +33,17 @@
 
 .era-box {
   position: relative;
-  display: inline-grid;
+  display: inline-block;
   overflow: hidden;
   color: white;
   font-weight: bold;
   height: 25px;
   background-color: #5b6e80;
+}
+
+.era-progress {
+  display: block;
+  height: 25px;
 }
 
 .progress-text {

@@ -31,6 +31,7 @@
             :style="`width: ${8*e.percent}%;`"
           >
             <span
+              class="era-progress"
               :style="`
                 background-color: ${e.color};
                 width: ${index < currentEraIndex ? 100 : (index > currentEraIndex ? 0 : currentEraPercentage)}%;
@@ -52,6 +53,7 @@
         <div class="current-era-div">
           <span class="era-box" style="width: 100%; border: 1px solid #493548">
             <span
+              class="era-progress"
               :style="`
                 background-color: ${currentEra?.color};
                 width: ${currentEraPercentage}%;
