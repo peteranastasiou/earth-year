@@ -81,6 +81,10 @@
   text-wrap: nowrap;
 }
 
+.bold {
+  font-weight: bold;
+}
+
 p {
   margin-bottom: 0;
 }

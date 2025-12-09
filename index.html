@@ -136,14 +136,15 @@
                   <a :href="e.link" target="_blank" x-text="e.name"></a>
                 </template>
                 <template x-if="!e.link">
-                  <span x-text="e.name"></span>
+                  <span x-text="e.name" :class="{'bold': e.isPast}"></span>
                 </template>
               </td>
               <td
                 class="no-wrap"
+                :class="{'bold': e.isPast}"
                 x-text="e.year < 1000000 ? e.year + ' ya' : e.year / 1000000 + ' Mya'"
               ></td>
-              <td class="no-wrap" x-text="e.localTime"></td>
+              <td class="no-wrap" :class="{'bold': e.isPast}" x-text="e.localTime"></td>
             </tr>
           </template>
         </table>

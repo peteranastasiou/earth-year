@@ -135,7 +135,7 @@ Alpine.data(
 
     tick() {
       // Perform just a quick calculation most times, do the full render less frequently
-      if (this.tickCount++ % 20 != 0) {
+      if (this.tickCount++ % 10 != 0) {
         // Instead of going for the full hassle of recalculating everything, just
         // decrement the known number of earth years most ticks
         // This is an optimisation
@@ -210,10 +210,14 @@ Alpine.data(
         // Filter if it is today
         const date = tc.earthYearToLocalTime(e.year);
         return date.ordinal == tc.now.ordinal;
-      }).map((e => ({
-        ...e,
-        localTime: tc.earthYearToLocalTime(e.year).toLocaleString(DateTime.TIME_WITH_SECONDS)
-      })));
+      }).map((e => {
+        const date = tc.earthYearToLocalTime(e.year);
+        return {
+          ...e,
+          localTime: date.toLocaleString(DateTime.TIME_WITH_SECONDS),
+          isPast: date < tc.now
+        };
+      }));
 
       this.renderYear();
     },
