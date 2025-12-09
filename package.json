@@ -19,7 +19,6 @@
     "@types/luxon": "^3.6.2",
     "alpinejs": "^3.14.9",
     "luxon": "^3.6.1",
-    "prettier": "^3.5.3",
-    "rxjs": "^7.8.2"
+    "prettier": "^3.5.3"
   }
 }

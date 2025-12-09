@@ -3,7 +3,6 @@ import Alpine from "alpinejs";
 import { DateTime } from "luxon";
 import { Era, eras } from "./data/eras";
 import { events, PrehistoricEvent } from "./data/events";
-import { filter, from, map, take, takeLast } from "rxjs";
 import { TimeCalculator } from "./time-calculator";
 
 window.Alpine = Alpine;
