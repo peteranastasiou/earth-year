@@ -83,7 +83,7 @@
         </div>
       </div>
 
-      <!-- Offset days left/right -->
+      <!-- Current time -->
       <div
         style="
           display: flex;
@@ -92,10 +92,13 @@
           margin: 10px;
         "
       >
-        <div x-text="offsetDays === 0 ? 'Real local time:' : 'Offset local time:'"></div>
+        <div
+          x-text="offsetDays === 0 ? 'Real local time:' : 'Offset local time:'"
+        ></div>
         <div style="margin-bottom: 10px">
           <span x-text="currentTime"></span>
         </div>
+        <!-- Offset days left/right -->
         <div>
           <span style="margin: 5px 5px 0px 0px">Offset by</span>
           <input
@@ -118,6 +121,33 @@
             Reset
           </button>
         </div>
+      </div>
+
+      <!-- Events -->
+      <div>
+        <table width="100%">
+          <tr style="text-align: left">
+            <th colspan="3">Events This Day</th>
+          </tr>
+          <template x-for="(e, index) in upcomingEvents">
+            <tr>
+              <td>
+                <template x-if="e.link">
+                  <a :href="e.link" target="_blank" x-text="e.name"></a>
+                </template>
+                <template x-if="!e.link">
+                  <span x-text="e.name" :class="{'bold': e.isPast}"></span>
+                </template>
+              </td>
+              <td
+                class="no-wrap"
+                :class="{'bold': e.isPast}"
+                x-text="e.year < 1000000 ? e.year + ' ya' : e.year / 1000000 + ' Mya'"
+              ></td>
+              <td class="no-wrap" :class="{'bold': e.isPast}" x-text="e.localTime"></td>
+            </tr>
+          </template>
+        </table>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

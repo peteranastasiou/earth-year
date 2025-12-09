@@ -77,6 +77,14 @@
   width: 80%;
 }
 
+.no-wrap {
+  text-wrap: nowrap;
+}
+
+.bold {
+  font-weight: bold;
+}
+
 p {
   margin-bottom: 0;
 }
