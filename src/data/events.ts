@@ -168,12 +168,15 @@ export const events: PrehistoricEvent[] = [
   {name: "Palaeotherium", year: 43.5 * MA, link: "https://en.wikipedia.org/wiki/Palaeotherium"},
   {name: "Basilosaurus", year: 41.3 * MA, link: "https://en.wikipedia.org/wiki/Basilosaurus"},
   {name: "Antarctica ices over", year: 34 * MA},
-
+  {name: "Australopithecus", year: 4 *MA},
   {name: "Diprotodon", year: 2.5 * MA, link: "https://en.wikipedia.org/wiki/Diprotodon"},
   {name: "Thylacoleo", year: 1.77 * MA, link: "https://en.wikipedia.org/wiki/Thylacoleo"},
   {name: "Woolly Mammoth", year: 0.4 * MA, link: "https://en.wikipedia.org/wiki/Woolly_mammoth"},
 
+  {name: "Neanderthals", year: 0.24*MA},
+  
   {name: "Early Homo sapiens appear in Africa", year: 300_000},
+  {name: "Extinction of Neanderthals ", year: 0.04*MA},
   {name: "End of the Last Ice Age", year: 12_000},
   {
     name: "The Great Pyramid of Giza is constructed (2560 BCE)",
